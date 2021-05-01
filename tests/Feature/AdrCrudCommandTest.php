@@ -30,3 +30,20 @@ test('test success', function () {
         );
     }
 });
+
+test('don\'t overwirte existent files', function () {
+    $filesystem = new Filesystem();
+    $filesystem->ensureDirectoryExists("{$this->model_dir}/Index");
+    $filesystem->put("{$this->model_dir}/Index/{$this->class_name}IndexAction.php", 'content');
+    $filesystem->put("{$this->model_dir}/Index/{$this->class_name}IndexResponder.php", 'content');
+
+    $this->artisan("make:crud {$this->model_name} --actions_dir={$this->actions_dir}")
+        ->expectsOutput('User ADR folders and classes created successfuly.')
+        ->assertExitCode(0);
+
+    $content1 = $filesystem->get("{$this->model_dir}/Index/{$this->class_name}IndexAction.php");
+    $content2 = $filesystem->get("{$this->model_dir}/Index/{$this->class_name}IndexResponder.php");
+
+    expect($content1)->toBe('content');
+    expect($content2)->toBe('content');
+});

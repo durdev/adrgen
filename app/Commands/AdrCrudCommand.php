@@ -45,26 +45,52 @@ class AdrCrudCommand extends Command
         $model_name  = ucfirst($this->argument('model'));
         $target_dir  = $actions_dir . '/' . $model_name;
 
-        $files->copyDirectory(__DIR__ . '/../../stubs/Entity', $target_dir);
+        if ($files->exists($target_dir) === false) {
+            $files->copyDirectory(__DIR__ . '/../../stubs/Entity', $target_dir);
 
-        foreach($files->allFiles($target_dir) as $file) {
-            $new_name      = str_replace('Entity', $model_name, $file->getFilename());
-            $new_path      = $file->getPath() . '/' . $new_name;
-            $new_namespace = trim(ucwords($target_dir, '/'), '/');
+            foreach($files->allFiles($target_dir) as $file) {
+                $new_name      = str_replace('Entity', $model_name, $file->getFilename());
+                $new_path      = $file->getPath() . '/' . $new_name;
+                $new_namespace = trim(ucwords($target_dir, '/'), '/');
 
-            $files->move($file->getRealPath(), $new_path);
+                $files->move($file->getRealPath(), $new_path);
 
-            $content = $files->get($new_path);
+                $content = $files->get($new_path);
 
-            if (str_contains($content, '{namespace}')) {
-                $content = str_replace('{namespace}', $new_namespace, $content);
+                if (str_contains($content, '{namespace}')) {
+                    $content = str_replace('{namespace}', $new_namespace, $content);
+                }
+
+                if (str_contains($content, 'Entity')) {
+                    $content = str_replace('Entity', $model_name, $content);
+                }
+
+                $files->put($new_path, $content);
             }
+        }
 
-            if (str_contains($content, 'Entity')) {
-                $content = str_replace('Entity', $model_name, $content);
+        if ($files->exists($target_dir)) {
+            foreach($files->allFiles($target_dir) as $file) {
+                if ($files->exists($file->getPathname()) === false) {
+                    $new_name      = str_replace('Entity', $model_name, $file->getFilename());
+                    $new_path      = $file->getPath() . '/' . $new_name;
+                    $new_namespace = trim(ucwords($target_dir, '/'), '/');
+
+                    $files->move($file->getRealPath(), $new_path);
+
+                    $content = $files->get($new_path);
+
+                    if (str_contains($content, '{namespace}')) {
+                        $content = str_replace('{namespace}', $new_namespace, $content);
+                    }
+
+                    if (str_contains($content, 'Entity')) {
+                        $content = str_replace('Entity', $model_name, $content);
+                    }
+
+                    $files->put($new_path, $content);
+                }
             }
-
-            $files->put($new_path, $content);
         }
 
         $this->info('User ADR folders and classes created successfuly.');
