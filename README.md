@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  badges
+  <img src="https://img.shields.io/github/workflow/status/durdev/adrgen/PHP%20Composer?style=for-the-badge" />
 </p>
 
 <p align="center">
@@ -33,20 +33,31 @@
 
 ### Getting Started
 
-1. Install global package
+1. Install as a global package
+  ```sh
+  composer global require durdev/adrgen
+  ```
 
-   #### Install Latest Version
-   ```sh
-   composer require global dwdev/adrgen
-   ```
+2. Make sure your global vendor binaries dir is in your $PATH
+  - Print the global composer binaries dir
+  ```sh
+    composer global config bin-dir --absolute
+  ```
+
+  - Copy the path to your bashrc (or zshrc or any *rc file)
+  ```sh
+    echo 'export PATH="$PATH:$HOME/path/to/composer/vendor/bin"' >> ~/.bashrc && source ~/.bashrc
+  ```
+
+Now that's all good to go.
 
 <a name="usage"></a>
 
-## Commands
+## Commands and usage
 
 | Command                 | Description                                | Options                    | Arguments  |
 | ------------------------| ------------------------------------------ | ---------------------------| -----------|
-| php adrgen make:crud    | Generates the basic CRUD operations files  | --actions_dir              | model      |
+| adrgen make:crud    | Generates the basic CRUD operations files  | --actions_dir              | model      |
 
 ### Details
 1. **--actions-dir**: your directory that will be the root folder for ADR actions directories
@@ -54,14 +65,14 @@
 
 Example:
 ```sh
-php adrgen make:crud user --action_dir=/var/www/project
+adrgen make:crud user --actions_dir=/var/www/project
 ```
 
 ### The default template created
 
-    /var/www/project
-    ├── (D) User                            # Capitalized model argument
-    │   ├── (D) Index                       # Directory actions
+    /var/www/project                        # Actions dir
+    ├── (D) User                            # Capitalized model
+    │   ├── (D) Index                       # Action dir
     |   |   ├── (F) IndexUserAction.php     # Action file
     |   |   └── (F) IndexUserResponder.php  # Responder file
     │   ├── (D) Create
@@ -78,23 +89,10 @@ php adrgen make:crud user --action_dir=/var/www/project
     |   |   └── (F) UpdateUserResponder.php
     │   ├── (D) Delete
     |   |   ├── (F) DeleteUserAction.php
-    |   |   └── (F) DeleteUserResponder.php
-    └── └── (F) UserResponder.php           # Default super responder file
+    └── └──   └── (F) DeleteUserResponder.php
 
 <a name="license"></a>
 
 ## License
 
 MIT
-
-## TODO
-### make:crud improvements
-- [ ] Don't overwrite existent action dir files
-- [ ] Create option --only=create,update,patch
-- [ ] Add laravel preset implementation (opinionated CRUD)
-- [ ] Add symfony preset implementation (opinionated CRUD)
-
-### make:payload new command
-- [ ] Create new command to generate the domain payload pattern class
-- [ ] Add laravel preset implementation
-- [ ] Add symfony preset implementation
