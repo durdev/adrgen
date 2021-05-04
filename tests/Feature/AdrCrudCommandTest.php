@@ -18,7 +18,7 @@ test('required options', function () {
 });
 
 test('test success', function () {
-    $this->artisan("make:crud {$this->model_name} --actions_dir={$this->actions_dir}")
+    $this->artisan("make:crud {$this->model_name} --actions-dir={$this->actions_dir}")
         ->expectsOutput('User ADR folders and classes created successfuly.')
         ->assertExitCode(0);
 
@@ -37,7 +37,7 @@ test('don\'t overwirte existent files', function () {
     $filesystem->put("{$this->model_dir}/Index/{$this->class_name}IndexAction.php", 'content');
     $filesystem->put("{$this->model_dir}/Index/{$this->class_name}IndexResponder.php", 'content');
 
-    $this->artisan("make:crud {$this->model_name} --actions_dir={$this->actions_dir}")
+    $this->artisan("make:crud {$this->model_name} --actions-dir={$this->actions_dir}")
         ->expectsOutput('User ADR folders and classes created successfuly.')
         ->assertExitCode(0);
 

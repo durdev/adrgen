@@ -57,7 +57,7 @@ Now that's all good to go.
 
 | Command                 | Description                                | Options                    | Arguments  |
 | ------------------------| ------------------------------------------ | ---------------------------| -----------|
-| adrgen make:crud    | Generates the basic CRUD operations files  | --actions_dir              | model      |
+| adrgen make:crud        | Generates the basic CRUD operations files  | --actions-dir              | model      |
 
 ### Details
 1. **--actions-dir**: your directory that will be the root folder for ADR actions directories
@@ -65,12 +65,12 @@ Now that's all good to go.
 
 Example:
 ```sh
-adrgen make:crud user --actions_dir=/var/www/project
+adrgen make:crud user --actions-dir=/var/www/project/actions
 ```
 
 ### The default template created
 
-    /var/www/project                        # Actions dir
+    /var/www/project/actions                # Actions dir
     ├── (D) User                            # Capitalized model
     │   ├── (D) Index                       # Action dir
     |   |   ├── (F) IndexUserAction.php     # Action file

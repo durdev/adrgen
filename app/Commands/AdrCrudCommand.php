@@ -18,7 +18,7 @@ class AdrCrudCommand extends Command
      */
     protected $signature = 'make:crud
         {model : The name of the entity}
-        {--actions_dir= : Your actions classes folder}';
+        {--actions-dir= : Your actions classes folder}';
 
     /**
      * The description of the command.
@@ -41,7 +41,7 @@ class AdrCrudCommand extends Command
             return 1;
         }
 
-        $actions_dir = $this->option('actions_dir');
+        $actions_dir = $this->option('actions-dir');
         $model_name  = ucfirst($this->argument('model'));
         $target_dir  = $actions_dir . '/' . $model_name;
 
@@ -98,7 +98,7 @@ class AdrCrudCommand extends Command
 
     private function validateOptions()
     {
-        if($this->option('actions_dir') == null) {
+        if($this->option('actions-dir') == null) {
             throw new RuntimeException('Actions target directory is required.', 1);
         }
     }
