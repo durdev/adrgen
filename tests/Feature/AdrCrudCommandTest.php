@@ -3,10 +3,10 @@
 use Illuminate\Filesystem\Filesystem;
 
 beforeEach(function () {
-    $this->model_name  = 'user';
-    $this->actions_dir = '/tmp/app/actions';
-    $this->class_name  = ucfirst($this->model_name);
-    $this->model_dir   = "{$this->actions_dir}/{$this->class_name}";
+    $this->modelName  = 'user';
+    $this->actionsDir = '/tmp/app/actions';
+    $this->className  = ucfirst($this->modelName);
+    $this->modelDir   = "{$this->actionsDir}/{$this->className}";
 });
 
 afterAll(function () {
@@ -14,19 +14,19 @@ afterAll(function () {
 });
 
 test('required options', function () {
-    $this->artisan("make:crud {$this->model_name}")->assertExitCode(1);
+    $this->artisan("make:crud {$this->modelName}")->assertExitCode(1);
 });
 
 test('test success', function () {
-    $this->artisan("make:crud {$this->model_name} --actions-dir={$this->actions_dir}")
+    $this->artisan("make:crud {$this->modelName} --actions-dir={$this->actionsDir}")
         ->expectsOutput('User ADR folders and classes created successfuly.')
         ->assertExitCode(0);
 
     $actions = ['Index', 'Create', 'Store', 'Edit', 'Update', 'Delete'];
     foreach ($actions as $action) {
         assertFilesAreCreated(
-            "{$this->model_dir}/{$action}/{$this->class_name}{$action}Action.php",
-            "{$this->model_dir}/{$action}/{$this->class_name}{$action}Responder.php"
+            "{$this->modelDir}/{$action}/{$this->className}{$action}Action.php",
+            "{$this->modelDir}/{$action}/{$this->className}{$action}Responder.php"
         );
     }
 });
@@ -34,31 +34,31 @@ test('test success', function () {
 test('test relative actions dir path success', function () {
     chdir('/tmp');
 
-    $this->artisan("make:crud {$this->model_name} --actions-dir=./app/actions")
+    $this->artisan("make:crud {$this->modelName} --actions-dir=./app/actions")
         ->expectsOutput('User ADR folders and classes created successfuly.')
         ->assertExitCode(0);
 
     $actions = ['Index', 'Create', 'Store', 'Edit', 'Update', 'Delete'];
     foreach ($actions as $action) {
         assertFilesAreCreated(
-            "{$this->model_dir}/{$action}/{$this->class_name}{$action}Action.php",
-            "{$this->model_dir}/{$action}/{$this->class_name}{$action}Responder.php"
+            "{$this->modelDir}/{$action}/{$this->className}{$action}Action.php",
+            "{$this->modelDir}/{$action}/{$this->className}{$action}Responder.php"
         );
     }
 });
 
 test('don\'t overwirte existent files', function () {
     $filesystem = new Filesystem();
-    $filesystem->ensureDirectoryExists("{$this->model_dir}/Index");
-    $filesystem->put("{$this->model_dir}/Index/{$this->class_name}IndexAction.php", 'content');
-    $filesystem->put("{$this->model_dir}/Index/{$this->class_name}IndexResponder.php", 'content');
+    $filesystem->ensureDirectoryExists("{$this->modelDir}/Index");
+    $filesystem->put("{$this->modelDir}/Index/{$this->className}IndexAction.php", 'content');
+    $filesystem->put("{$this->modelDir}/Index/{$this->className}IndexResponder.php", 'content');
 
-    $this->artisan("make:crud {$this->model_name} --actions-dir={$this->actions_dir}")
+    $this->artisan("make:crud {$this->modelName} --actions-dir={$this->actionsDir}")
         ->expectsOutput('User ADR folders and classes created successfuly.')
         ->assertExitCode(0);
 
-    $content1 = $filesystem->get("{$this->model_dir}/Index/{$this->class_name}IndexAction.php");
-    $content2 = $filesystem->get("{$this->model_dir}/Index/{$this->class_name}IndexResponder.php");
+    $content1 = $filesystem->get("{$this->modelDir}/Index/{$this->className}IndexAction.php");
+    $content2 = $filesystem->get("{$this->modelDir}/Index/{$this->className}IndexResponder.php");
 
     expect($content1)->toBe('content');
     expect($content2)->toBe('content');

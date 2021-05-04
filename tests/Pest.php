@@ -4,10 +4,10 @@ use Illuminate\Filesystem\Filesystem;
 
 uses(Tests\TestCase::class)->in('Feature');
 
-function assertFilesAreCreated($action_path, $responder_path)
+function assertFilesAreCreated($actionPath, $responderPath)
 {
     $filesystem = new Filesystem();
 
-    expect($filesystem->exists($action_path))->toBeTrue();
-    expect($filesystem->exists($responder_path))->toBeTrue();
+    expect($filesystem->exists($actionPath))->toBeTrue();
+    expect($filesystem->exists($responderPath))->toBeTrue();
 }

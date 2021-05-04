@@ -9,8 +9,6 @@ use RuntimeException;
 class AdrCrudCommand extends Command
 {
 
-    private $actions = ['index', 'create', 'edit', 'store', 'update', 'delete'];
-
     /**
      * The signature of the command.
      *
@@ -36,59 +34,59 @@ class AdrCrudCommand extends Command
     {
         try {
             $this->validateOptions();
-        } catch (RuntimeException $runtime_exception) {
-            $this->comment($runtime_exception->getMessage(), $runtime_exception->getCode());
+        } catch (RuntimeException $runtimeException) {
+            $this->comment($runtimeException->getMessage(), $runtimeException->getCode());
             return 1;
         }
 
-        $actions_dir = $this->option('actions-dir');
-        $model_name  = ucfirst($this->argument('model'));
-        $target_dir  = $actions_dir . '/' . $model_name;
+        $actionsDir = $this->option('actions-dir');
+        $modelName  = ucfirst($this->argument('model'));
+        $targetDir  = $actionsDir . '/' . $modelName;
 
-        if ($files->exists($target_dir) === false) {
-            $files->copyDirectory(__DIR__ . '/../../stubs/Entity', $target_dir);
+        if ($files->exists($targetDir) === false) {
+            $files->copyDirectory(__DIR__ . '/../../stubs/Entity', $targetDir);
 
-            foreach($files->allFiles($target_dir) as $file) {
-                $new_name      = str_replace('Entity', $model_name, $file->getFilename());
-                $new_path      = $file->getPath() . '/' . $new_name;
-                $new_namespace = trim(ucwords($target_dir, '/'), '/');
+            foreach($files->allFiles($targetDir) as $file) {
+                $newName      = str_replace('Entity', $modelName, $file->getFilename());
+                $newPath      = $file->getPath() . '/' . $newName;
+                $newNamespace = trim(ucwords($targetDir, '/'), '/');
 
-                $files->move($file->getRealPath(), $new_path);
+                $files->move($file->getRealPath(), $newPath);
 
-                $content = $files->get($new_path);
+                $content = $files->get($newPath);
 
                 if (str_contains($content, '{namespace}')) {
-                    $content = str_replace('{namespace}', $new_namespace, $content);
+                    $content = str_replace('{namespace}', $newNamespace, $content);
                 }
 
                 if (str_contains($content, 'Entity')) {
-                    $content = str_replace('Entity', $model_name, $content);
+                    $content = str_replace('Entity', $modelName, $content);
                 }
 
-                $files->put($new_path, $content);
+                $files->put($newPath, $content);
             }
         }
 
-        if ($files->exists($target_dir)) {
-            foreach($files->allFiles($target_dir) as $file) {
+        if ($files->exists($targetDir)) {
+            foreach($files->allFiles($targetDir) as $file) {
                 if ($files->exists($file->getPathname()) === false) {
-                    $new_name      = str_replace('Entity', $model_name, $file->getFilename());
-                    $new_path      = $file->getPath() . '/' . $new_name;
-                    $new_namespace = trim(ucwords($target_dir, '/'), '/');
+                    $newName      = str_replace('Entity', $modelName, $file->getFilename());
+                    $newPath      = $file->getPath() . '/' . $newName;
+                    $newNamespace = trim(ucwords($targetDir, '/'), '/');
 
-                    $files->move($file->getRealPath(), $new_path);
+                    $files->move($file->getRealPath(), $newPath);
 
-                    $content = $files->get($new_path);
+                    $content = $files->get($newPath);
 
                     if (str_contains($content, '{namespace}')) {
-                        $content = str_replace('{namespace}', $new_namespace, $content);
+                        $content = str_replace('{namespace}', $newNamespace, $content);
                     }
 
                     if (str_contains($content, 'Entity')) {
-                        $content = str_replace('Entity', $model_name, $content);
+                        $content = str_replace('Entity', $modelName, $content);
                     }
 
-                    $files->put($new_path, $content);
+                    $files->put($newPath, $content);
                 }
             }
         }
