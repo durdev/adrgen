@@ -31,3 +31,6 @@ jobs:
 
     - name: Run test suite
       run: composer run-script test
+
+    - name: Build .phar
+      run: php adrgen app:build adrgen
