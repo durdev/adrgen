@@ -3,7 +3,7 @@
     "description": "ADR pattern directories and files generator",
     "keywords": ["adr", "php", "cli", "console"],
     "homepage": "https://adrgen.com.br",
-    "type": "project",
+    "type": "library",
     "license": "MIT",
     "support": {
         "issues": "https://github.com/durdev/adrgen/issues",
