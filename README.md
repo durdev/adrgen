@@ -39,14 +39,9 @@
   ```
 
 2. Make sure your global vendor binaries dir is in your $PATH
-  - Print the global composer binaries dir
+  - Append the composer bin path to your bashrc (or zshrc or any *rc file)
   ```sh
-    composer global config bin-dir --absolute
-  ```
-
-  - Copy the path to your bashrc (or zshrc or any *rc file)
-  ```sh
-    echo 'export PATH="$PATH:$HOME/path/to/composer/vendor/bin"' >> ~/.bashrc && source ~/.bashrc
+    echo 'PATH=$(composer global config bin-dir --absolute --quiet):$PATH' >> ~/.bashrc && source ~/.bashrc
   ```
 
 Now that's all good to go.
@@ -89,7 +84,7 @@ adrgen make:crud user --actions-dir=/var/www/project/actions
     |   |   └── (F) UpdateUserResponder.php
     │   ├── (D) Delete
     |   |   ├── (F) DeleteUserAction.php
-    └── └──   └── (F) DeleteUserResponder.php
+    └── └── └── (F) DeleteUserResponder.php
 
 <a name="license"></a>
 
