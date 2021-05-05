@@ -43,6 +43,7 @@
     "prefer-stable": true,
     "bin": ["builds/adrgen"],
     "scripts": {
-        "test": "php adrgen test"
+        "test": "php adrgen test",
+        "build": "php adrgen app:build"
     }
 }
