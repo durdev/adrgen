@@ -5,9 +5,21 @@ namespace App\Commands;
 use Illuminate\Filesystem\Filesystem;
 use LaravelZero\Framework\Commands\Command;
 use RuntimeException;
+use Symfony\Component\Finder\Finder;
 
 class AdrCrudCommand extends Command
 {
+
+    private $fileManager;
+    private $targetDir;
+    private $modelName;
+
+    public function __construct(Filesystem $fileManager)
+    {
+        parent::__construct();
+
+        $this->fileManager = $fileManager;
+    }
 
     /**
      * The signature of the command.
@@ -30,74 +42,105 @@ class AdrCrudCommand extends Command
      *
      * @return mixed
      */
-    public function handle(Filesystem $files)
+    public function handle()
     {
-        $dir       = null;
-        $modelName = ucfirst($this->argument('model'));
-
         try {
-            $dir = $this->validateDirOption();
+            $this->parseArgsOpts();
         } catch (RuntimeException $runtimeException) {
             $this->comment($runtimeException->getMessage(), $runtimeException->getCode());
             return $runtimeException->getCode();
         }
 
-        $targetDir = $dir . '/' . $modelName;
-
-        $this->comment(($targetDir . ' existe? ') . ($files->exists($targetDir) ? 'sim' : 'nao'));
-
-        if ($files->exists($targetDir)) {
-            $this->line('Iterando sobre os arquivos do diretorio ' . $targetDir);
-
-            foreach($files->allFiles($targetDir) as $file) {
-                if ($files->exists($file->getPathname()) === false) {
-                    $newName      = str_replace('Entity', $modelName, $file->getFilename());
-                    $newPath      = $file->getPath() . '/' . $newName;
-                    $newNamespace = trim(ucwords($targetDir, '/'), '/');
-
-                    $files->move($file->getRealPath(), $newPath);
-
-                    $content = $files->get($newPath);
-
-                    if (str_contains($content, '{namespace}')) {
-                        $content = str_replace('{namespace}', $newNamespace, $content);
-                    }
-
-                    if (str_contains($content, 'Entity')) {
-                        $content = str_replace('Entity', $modelName, $content);
-                    }
-
-                    $files->put($newPath, $content);
-                }
-            }
+        if ($this->directoryExists($this->targetDir)) {
+            $this->onlyWriteNewFiles();
         } else {
-            $this->line('criando diretorio ' . $targetDir);
-            $files->makeDirectory($targetDir, 0777);
-            $this->line('copiando arquivos de ' . __DIR__ . '/../../stubs/Entity para ' . $targetDir);
-            $files->copyDirectory(__DIR__ . '/../../stubs/Entity', $targetDir);
-
-            foreach($files->allFiles($targetDir) as $file) {
-                $newName      = str_replace('Entity', $modelName, $file->getFilename());
-                $newPath      = $file->getPath() . '/' . $newName;
-                $newNamespace = trim(ucwords($targetDir, '/'), '/');
-
-                $files->move($file->getRealPath(), $newPath);
-
-                $content = $files->get($newPath);
-
-                if (str_contains($content, '{namespace}')) {
-                    $content = str_replace('{namespace}', $newNamespace, $content);
-                }
-
-                if (str_contains($content, 'Entity')) {
-                    $content = str_replace('Entity', $modelName, $content);
-                }
-
-                $files->put($newPath, $content);
-            }
+            $this->createDirAndFiles();
         }
 
         $this->info('User ADR folders and classes created successfuly.');
+    }
+
+    private function onlyWriteNewFiles()
+    {
+        foreach($this->fileManager->allFiles($this->targetDir) as $file) {
+            if ($this->fileDontExists($file)) {
+                $renamedFile = $this->renameFilename($file);
+                $this->replaceDefaultContent($renamedFile);
+            }
+        }
+    }
+
+    private function createDirAndFiles()
+    {
+        $this->fileManager->copyDirectory(__DIR__ . '/../../stubs/Entity', $this->targetDir);
+
+        foreach($this->fileManager->allFiles($this->targetDir) as $file) {
+            $renamedFile = $this->renameFilename($file);
+            $this->replaceDefaultContent($renamedFile);
+        }
+    }
+
+    private function parseArgsOpts()
+    {
+        $this->modelName = ucfirst($this->argument('model'));
+        $this->targetDir = $this->validateDirOption() . '/' . $this->modelName;
+    }
+
+    private function directoryExists($dir)
+    {
+        return $this->fileManager->exists($dir);
+    }
+
+    private function fileDontExists($file)
+    {
+        return !$this->fileManager->exists($file->getPathname());
+    }
+
+    private function renameFilename($file)
+    {
+        $modelName    = ucfirst($this->argument('model'));
+        $newName      = str_replace('Entity', $modelName, $file->getFilename());
+        $newPath      = $file->getPath() . '/' . $newName;
+
+        $this->fileManager->move($file->getRealPath(), $newPath);
+
+        $finder = new Finder();
+        $finder->in($file->getPath())->files()->name($newName);
+
+        $renamedFile = null;
+
+        foreach ($finder as $file) {
+            if ($file->getFilename() == $newName) {
+                $renamedFile = $file;
+            }
+        }
+
+        return $renamedFile;
+    }
+
+    private function replaceDefaultContent($renamedFile)
+    {
+        $content = $this->fileManager->get($renamedFile);
+
+        if (str_contains($content, '{namespace}')) {
+            $content = $this->replaceNamespace(trim(ucwords($this->targetDir, '/'), '/'), $content);
+        }
+
+        if (str_contains($content, 'Entity')) {
+            $content = $this->replaceEntity($content);
+        }
+
+        $this->fileManager->put($renamedFile, $content);
+    }
+
+    private function replaceNamespace($namespace, $content)
+    {
+        return str_replace('{namespace}', $namespace, $content);
+    }
+
+    private function replaceEntity($content)
+    {
+        return str_replace('Entity', $this->modelName, $content);
     }
 
     private function validateDirOption()
